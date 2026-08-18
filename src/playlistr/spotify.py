@@ -4,12 +4,9 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 import spotipy
-from dotenv import load_dotenv
 from spotipy.oauth2 import SpotifyPKCE
 
 from playlistr.helper import unwrap
-
-load_dotenv()
 
 _sp: spotipy.Spotify | None = None
 
