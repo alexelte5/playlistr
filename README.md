@@ -68,5 +68,4 @@ docs/
 - Es werden nur eigene Playlists durchsucht, keine gefolgten/kollaborativen fremder Owner
 
 ## ToDos
-- Dopplung der Lieder in Playlists überarbeiten
 - Artists richtig finden -> Es werden nicht immer alle Songs der Artists angezeigt

@@ -17,7 +17,7 @@ def select_artist(all_songs):
         choices=list(name_to_ids),
         ignore_case=True,
         meta_information={name: f"{count} Songs" for _, name, count in artist_counts},
-    ).ask()
+    ).unsafe_ask()
 
     return name_to_ids.get(name, [])
 
@@ -28,12 +28,12 @@ def select_playlist():
     choices.append(
         questionary.Choice(title="+ Neue Playlist erstellen", value="__new__")
     )
-    selection = questionary.select("Welche Playlist?", choices).ask()
+    selection = questionary.select("Welche Playlist?", choices).unsafe_ask()
     if selection is None:
         return None
 
     if selection == "__new__":
-        playlist_name = questionary.text("Name der neuen Playlist:").ask()
+        playlist_name = questionary.text("Name der neuen Playlist:").unsafe_ask()
         if playlist_name is None:
             return None
         return get_or_create_playlist(playlist_name)
@@ -47,5 +47,5 @@ def select_songs(artist_ids, all_songs: list):
         print("Keine Songs für diesen Artist gefunden")
         return
     choices = [questionary.Choice(title=t["name"], value=t) for t in tracks]
-    songs = questionary.checkbox("Welche Lieder?", choices).ask()
+    songs = questionary.checkbox("Welche Lieder?", choices).unsafe_ask()
     return songs

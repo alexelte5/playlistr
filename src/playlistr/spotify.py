@@ -9,6 +9,7 @@ from spotipy.oauth2 import SpotifyPKCE
 from playlistr.helper import unwrap
 
 _sp: spotipy.Spotify | None = None
+_playlist_track_ids: dict[str, set[str]] = {}
 
 CACHE_PATH = Path("song_cache.json")
 CACHE_MAX_AGE_SECONDS = 60 * 60 * 1
@@ -53,9 +54,7 @@ def get_liked_songs():
     limit = 50
 
     while True:
-        results = unwrap(
-            get_client().current_user_saved_tracks(limit=limit, offset=offset)
-        )
+        results = unwrap(get_client().current_user_saved_tracks(limit, offset))
         items = results["items"]
         if not items:
             break
@@ -75,13 +74,18 @@ def get_playlist_tracks(playlist_id: str):
 
     while True:
         results = unwrap(
-            get_client().playlist_items(playlist_id, limit=limit, offset=offset)
+            get_client().playlist_items(
+                playlist_id,
+                limit=limit,
+                offset=offset,
+                additional_types=("track",),
+            )
         )
         items = results["items"]
         if not items:
             break
         for item in items:
-            track = item.get("track")
+            track = item.get("item") or item.get("track")
             if track:
                 tracks.append(track)
         offset += limit
@@ -195,8 +199,17 @@ def get_or_create_playlist(name: str):
 
 
 def add_tracks(playlist_id: str, tracks: list[dict]):
-    existing_ids = {t["id"] for t in get_playlist_tracks(playlist_id)}
-    new_track_uris = [t["uri"] for t in tracks if t["id"] not in existing_ids]
+    if playlist_id not in _playlist_track_ids:
+        _playlist_track_ids[playlist_id] = {
+            t["uri"] for t in get_playlist_tracks(playlist_id)
+        }
+    existing_uris = _playlist_track_ids[playlist_id]
+
+    new_track_uris = []
+    for t in tracks:
+        if t["uri"] not in existing_uris:
+            new_track_uris.append(t["uri"])
+            existing_uris.add(t["uri"])
 
     if not new_track_uris:
         return

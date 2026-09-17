@@ -9,6 +9,7 @@ wheels/
 # Virtual environments
 .venv
 
+.claude
 .env
 .cache
 song_cache.json

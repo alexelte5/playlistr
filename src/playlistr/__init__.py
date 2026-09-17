@@ -7,6 +7,8 @@ def main() -> None:
     try:
         while True:
             artist = select_artist(all_songs)
+            if not artist:
+                continue
             songs = select_songs(artist, all_songs)
             if not songs:
                 continue
